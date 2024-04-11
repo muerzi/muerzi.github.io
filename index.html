@@ -45,57 +45,65 @@
         <!-- Puntigamer offers will be loaded here -->
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
-            fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
+        fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
+    });
 
-        function fetchCsvAndDisplay(url, elementId) {
-            fetch(url)
-                .then(response => response.text())
-                .then(csv => {
-                    const data = parseCSV(csv);
-                    displayCsvData(data, elementId);
-                }).catch(error => console.error('Error fetching or parsing CSV:', error));
-        }
+    function fetchCsvAndDisplay(url, elementId) {
+        fetch(url)
+            .then(response => response.text())
+            .then(csv => {
+                const data = parseCSV(csv);
+                displayCsvData(data, elementId);
+            }).catch(error => console.error('Error fetching or parsing CSV:', error));
+    }
 
-        function parseCSV(csv) {
-            let rows = csv.split('\n').filter(row => row);
-            return rows.map(parseCSVRow);
-        }
+    function parseCSV(csv) {
+        let rows = csv.split('\n').filter(row => row);
+        return rows.map(parseCSVRow);
+    }
 
-        function parseCSVRow(row) {
-            let result = [];
-            let startValueIdx = 0;
-            let inQuotes = false;
+    function parseCSVRow(row) {
+        let result = [];
+        let startValueIdx = 0;
+        let inQuotes = false;
 
-            for (let i = 0; i < row.length; i++) {
-                if (row[i] === '"' && (i === 0 || row[i - 1] !== '"')) {
-                    inQuotes = !inQuotes;
-                } else if (row[i] === ',' && !inQuotes) {
-                    result.push(row.substring(startValueIdx, i).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-                    startValueIdx = i + 1;
-                }
+        for (let i = 0; i < row.length; i++) {
+            if (row[i] === '"' && (i === 0 || row[i - 1] !== '"')) {
+                inQuotes = !inQuotes;
+            } else if (row[i] === ',' && !inQuotes) {
+                result.push(row.substring(startValueIdx, i).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                startValueIdx = i + 1;
             }
-
-            // Push the last value
-            result.push(row.substring(startValueIdx).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-            return result;
         }
 
-        function displayCsvData(data, elementId) {
-            const container = document.getElementById(elementId);
-            let table = '<table>';
-            data.forEach((row, index) => {
-                table += '<tr>';
-                row.forEach(cell => {
-                    table += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
-                });
-                table += '</tr>';
+        // Push the last value
+        result.push(row.substring(startValueIdx).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+        return result;
+    }
+
+    function displayCsvData(data, elementId) {
+        const container = document.getElementById(elementId);
+        let table = '<table>';
+        data.forEach((row, index) => {
+            table += '<tr>';
+            row.forEach((cell, cellIndex) => {
+                if (index === 0) { // Header row
+                    table += `<th>${cell}</th>`;
+                } else {
+                    if (cellIndex === 0) { // First column with image URL
+                        table += `<td><img src="${cell}" alt="Product Image" style="width:100px;"></td>`;
+                    } else {
+                        table += `<td>${cell}</td>`;
+                    }
+                }
             });
-            table += '</table>';
-            container.innerHTML = table;
-        }
-    </script>
+            table += '</tr>';
+        });
+        table += '</table>';
+        container.innerHTML = table;
+    }
+</script>
 </body>
 </html>

@@ -2,21 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beer Offers</title>
     <style>
-        /* Embed your CSS here */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
             padding: 0;
             background-color: #f0f0f0;
         }
-
         h1 {
             color: #333;
         }
-
         .offers-container {
             background-color: #fff;
             padding: 20px;
@@ -24,18 +20,15 @@
             border-radius: 5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
         }
-
         th, td {
             text-align: left;
             padding: 8px;
             border-bottom: 1px solid #ddd;
         }
-
         th {
             background-color: #f2f2f2;
         }
@@ -52,7 +45,6 @@
         <!-- Puntigamer offers will be loaded here -->
     </div>
     <script>
-        // Embed your JavaScript here
         document.addEventListener('DOMContentLoaded', function() {
             fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
             fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
@@ -68,8 +60,27 @@
         }
 
         function parseCSV(csv) {
-            const rows = csv.split('\n').filter(row => row);
-            return rows.map(row => row.split(',').map(cell => cell.trim()));
+            let rows = csv.split('\n').filter(row => row);
+            return rows.map(parseCSVRow);
+        }
+
+        function parseCSVRow(row) {
+            let result = [];
+            let startValueIdx = 0;
+            let inQuotes = false;
+
+            for (let i = 0; i < row.length; i++) {
+                if (row[i] === '"' && (i === 0 || row[i - 1] !== '"')) {
+                    inQuotes = !inQuotes;
+                } else if (row[i] === ',' && !inQuotes) {
+                    result.push(row.substring(startValueIdx, i).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                    startValueIdx = i + 1;
+                }
+            }
+
+            // Push the last value
+            result.push(row.substring(startValueIdx).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            return result;
         }
 
         function displayCsvData(data, elementId) {

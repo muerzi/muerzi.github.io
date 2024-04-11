@@ -1,7 +1,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        fetchCsvAndDisplay('https://raw.githubusercontent.com/muerzi/muerzi.github.io/main/g%C3%B6sser_offers.csv', 'gösserOffers');
+        fetchCsvAndDisplay('https://raw.githubusercontent.com/muerzi/muerzi.github.io/main/gösser_offers.csv', 'gösserOffers');
         fetchCsvAndDisplay('https://raw.githubusercontent.com/muerzi/muerzi.github.io/main/puntigamer_offers.csv', 'puntigamerOffers');
     });
 

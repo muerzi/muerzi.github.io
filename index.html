@@ -4,35 +4,38 @@
     <meta charset="UTF-8">
     <title>Beer Offers</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #333;
-        }
-        .offers-container {
-            background-color: #fff;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 0;
+        background-color: #f0f0f0;
+    }
+    h1 {
+        color: #333;
+    }
+    .offers-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust column width as needed */
+        gap: 20px; /* Space between items */
+        background-color: #fff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .offer-item {
+        padding: 10px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
 </head>
 <body>
     <h1>Beer Offers</h1>
@@ -45,65 +48,58 @@
         <!-- Puntigamer offers will be loaded here -->
     </div>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
-        fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
+    fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
+});
 
-    function fetchCsvAndDisplay(url, elementId) {
-        fetch(url)
-            .then(response => response.text())
-            .then(csv => {
-                const data = parseCSV(csv);
-                displayCsvData(data, elementId);
-            }).catch(error => console.error('Error fetching or parsing CSV:', error));
-    }
+function fetchCsvAndDisplay(url, elementId) {
+    fetch(url)
+        .then(response => response.text())
+        .then(csv => {
+            const data = parseCSV(csv);
+            displayCsvData(data, elementId);
+        }).catch(error => console.error('Error fetching or parsing CSV:', error));
+}
 
-    function parseCSV(csv) {
-        let rows = csv.split('\n').filter(row => row);
-        return rows.map(parseCSVRow);
-    }
+function parseCSV(csv) {
+    let rows = csv.split('\n').filter(row => row);
+    return rows.map(parseCSVRow);
+}
 
-    function parseCSVRow(row) {
-        let result = [];
-        let startValueIdx = 0;
-        let inQuotes = false;
+function parseCSVRow(row) {
+    let result = [];
+    let startValueIdx = 0;
+    let inQuotes = false;
 
-        for (let i = 0; i < row.length; i++) {
-            if (row[i] === '"' && (i === 0 || row[i - 1] !== '"')) {
-                inQuotes = !inQuotes;
-            } else if (row[i] === ',' && !inQuotes) {
-                result.push(row.substring(startValueIdx, i).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-                startValueIdx = i + 1;
-            }
+    for (let i = 0; i < row.length; i++) {
+        if (row[i] === '"' && (i === 0 || row[i - 1] !== '"')) {
+            inQuotes = !inQuotes;
+        } else if (row[i] === ',' && !inQuotes) {
+            result.push(row.substring(startValueIdx, i).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            startValueIdx = i + 1;
         }
-
-        // Push the last value
-        result.push(row.substring(startValueIdx).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
-        return result;
     }
 
-    function displayCsvData(data, elementId) {
-        const container = document.getElementById(elementId);
-        let table = '<table>';
-        data.forEach((row, index) => {
-            table += '<tr>';
-            row.forEach((cell, cellIndex) => {
-                if (index === 0) { // Header row
-                    table += `<th>${cell}</th>`;
-                } else {
-                    if (cellIndex === 0) { // First column with image URL
-                        table += `<td><img src="${cell}" alt="Product Image" style="width:100px;"></td>`;
-                    } else {
-                        table += `<td>${cell}</td>`;
-                    }
-                }
-            });
-            table += '</tr>';
-        });
-        table += '</table>';
-        container.innerHTML = table;
-    }
+    // Push the last value
+    result.push(row.substring(startValueIdx).trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+    return result;
+}
+
+function displayCsvData(data, elementId) {
+    const container = document.getElementById(elementId);
+    container.innerHTML = ''; // Clear previous content
+    data.forEach((row, index) => {
+        if (index === 0) return; // Skip header row
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'offer-item';
+        itemDiv.innerHTML = `
+            <img src="${row[0]}" alt="Product Image">
+            <div>${row.slice(1).join('</div><div>')}</div>
+        `;
+        container.appendChild(itemDiv);
+    });
+}
 </script>
 </body>
 </html>

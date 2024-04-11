@@ -1,33 +1,32 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchCsvAndDisplay('https://raw.githubusercontent.com/muerzi/muerzi.github.io/main/gösser_offers.csv', 'gösserOffers');
-        fetchCsvAndDisplay('https://raw.githubusercontent.com/muerzi/muerzi.github.io/main/puntigamer_offers.csv', 'puntigamerOffers');
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    fetchCsvAndDisplay('goesser_offers.csv', 'goesserOffers');
+    fetchCsvAndDisplay('puntigamer_offers.csv', 'puntigamerOffers');
+});
 
-    function fetchCsvAndDisplay(url, elementId) {
-        fetch(url)
-            .then(response => response.text())
-            .then(csv => {
-                Papa.parse(csv, {
-                    complete: function(results) {
-                        displayCsvData(results.data, elementId);
-                    }
-                });
-            });
-    }
+function fetchCsvAndDisplay(url, elementId) {
+    fetch(url)
+        .then(response => response.text())
+        .then(csv => {
+            const data = parseCSV(csv);
+            displayCsvData(data, elementId);
+        }).catch(error => console.error('Error fetching or parsing CSV:', error));
+}
 
-    function displayCsvData(data, elementId) {
-        const container = document.getElementById(elementId);
-        let table = '<table>';
-        data.forEach((row, index) => {
-            table += '<tr>';
-            row.forEach(cell => {
-                table += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
-            });
-            table += '</tr>';
+function parseCSV(csv) {
+    const rows = csv.split('\n').filter(row => row);
+    return rows.map(row => row.split(',').map(cell => cell.trim()));
+}
+
+function displayCsvData(data, elementId) {
+    const container = document.getElementById(elementId);
+    let table = '<table>';
+    data.forEach((row, index) => {
+        table += '<tr>';
+        row.forEach(cell => {
+            table += index === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
         });
-        table += '</table>';
-        container.innerHTML = table;
-    }
-</script>
+        table += '</tr>';
+    });
+    table += '</table>';
+    container.innerHTML = table;
+}
